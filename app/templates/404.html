@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-12 text-center my-5">
+        <h1 class="display-1">404</h1>
+        <h2 class="mb-4">Страница не найдена</h2>
+        <p class="mb-4">Запрашиваемый пост не существует или был удален.</p>
+        <a href="{{ url_for('index') }}" class="btn btn-primary">Вернуться к постам</a>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-header">
+                <h2>{{ title }}</h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    <!-- Название -->
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Название книги <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control {% if errors.title %}is-invalid{% endif %}"
+                               id="title" name="title" value="{{ form_data.get('title', '') }}" required>
+                        {% if errors.title %}
+                            <div class="invalid-feedback">{{ errors.title }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Описание -->
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Описание <span class="text-danger">*</span></label>
+                        <textarea class="form-control {% if errors.description %}is-invalid{% endif %}"
+                            id="description" name="description" rows="10">{{ form_data.get('description', '') }}</textarea>
+                        {% if errors.description %}
+                            <div class="invalid-feedback">{{ errors.description }}</div>
+                        {% else %}
+                            <div class="form-text">Поддерживается форматирование Markdown</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Год и издательство -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="year" class="form-label">Год издания <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control {% if errors.year %}is-invalid{% endif %}"
+                                   id="year" name="year" value="{{ form_data.get('year', '') }}" required>
+                            {% if errors.year %}
+                                <div class="invalid-feedback">{{ errors.year }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="publisher" class="form-label">Издательство <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control {% if errors.publisher %}is-invalid{% endif %}"
+                                   id="publisher" name="publisher" value="{{ form_data.get('publisher', '') }}" required>
+                            {% if errors.publisher %}
+                                <div class="invalid-feedback">{{ errors.publisher }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Автор -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="author" class="form-label">Автор <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control {% if errors.author %}is-invalid{% endif %}"
+                                   id="author" name="author" value="{{ form_data.get('author', '') }}" required>
+                            {% if errors.author %}
+                                <div class="invalid-feedback">{{ errors.author }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Жанры  -->
+                    <div class="mb-3">
+                        <label for="genres" class="form-label">Жанры (можно выбрать несколько)</label>
+                        <select multiple class="form-select" id="genres" name="genres" size="6">
+                            {% for genre in genres %}
+                                <option value="{{ genre.id }}"> {% if genre.id|string in form_data.get('genres', []) %}selected{% endif %}>
+    {{ genre.name }}
+</option>
+                            {% endfor %}
+                        </select>
+                        {% if errors.genres %}
+                            <div class="invalid-feedback">{{ errors.genres }}</div>
+                        {% else %}
+                            <div class="form-text">Удерживайте Ctrl для выбора нескольких жанров</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Обложка (только при создании) -->
+                    {% if book is none %}
+                    <div class="mb-3">
+                        <label for="cover" class="form-label">Обложка <span class="text-danger">*</span></label>
+                        <input type="file" class="form-control {% if errors.cover %}is-invalid{% endif %}"
+                               id="cover" name="cover" accept="image/jpeg,image/png,image/gif" required>
+                        {% if errors.cover %}
+                            <div class="invalid-feedback">{{ errors.cover }}</div>
+                        {% else %}
+                            <div class="form-text">Поддерживаются форматы: JPG, PNG, GIF. Максимальный размер: 16 МБ</div>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                        {% if book.cover %}
+                            <div class="mb-3">
+                                <label class="form-label">Текущая обложка</label>
+                                <div>
+                                    <img src="{{ url_for('static', filename='images/' + book.cover.filename) }}"
+                                         alt="{{ book.title }}" style="max-height: 150px;">
+                                </div>
+                                <div class="form-text">Обложку можно изменить только при создании книги</div>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+
+                    <!-- Кнопки -->
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-success">💾 Сохранить</button>
+                        <a href="{{ url_for('books.index') }}" class="btn btn-secondary">Отмена</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Подключаем EasyMDE для Markdown -->
+<script src="https://cdn.jsdelivr.net/npm/easymde@2.18.0/dist/easymde.min.js"></script>
+<script>
+    const easymde = new EasyMDE({
+        element: document.getElementById('description'),
+        spellChecker: false,
+        toolbar: ['bold', 'italic', 'heading', '|', 'quote', 'code', 'unordered-list', 'ordered-list', '|', 'link', 'image', '|', 'preview', 'guide']
+    });
+</script>
+{% endblock %}

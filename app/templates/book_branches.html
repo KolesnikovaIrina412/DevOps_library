@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('books.index') }}">Главная</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('books.view', book_id=book.id) }}">{{ book.title }}</a></li>
+                <li class="breadcrumb-item active">Филиалы</li>
+            </ol>
+        </nav>
+        
+        <h1 class="mb-4">🏢 Филиалы: {{ book.title }}</h1>
+        <p class="text-muted mb-4">{{ book.author }} ({{ book.year }})</p>
+        
+        <!-- Кнопки -->
+        <div class="mb-4">
+            <a href="{{ url_for('books.view', book_id=book.id) }}" class="btn btn-secondary">
+                ← Назад к книге
+            </a>
+            {% if not branches_stats %}
+                <a href="{{ url_for('books.init_branches') }}" class="btn btn-info">
+                    🏢 Добавить тестовые филиалы
+                </a>
+            {% endif %}
+        </div>
+        
+        <!-- Таблица филиалов -->
+        {% if branches_stats %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Филиал</th>
+                            <th class="text-center">Всего экземпляров</th>
+                            <th class="text-center text-success">В наличии</th>
+                            <th class="text-center text-warning">Выдано</th>
+                            <th class="text-center text-info">Популярность</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in branches_stats %}
+                            <tr>
+                                <td>
+                                    <strong>{{ item.branch.name }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ item.branch.address }}</small>
+                                </td>
+                                <td class="text-center align-middle">
+                                    <span class="badge bg-secondary">{{ item.stats.total }}</span>
+                                </td>
+                                <td class="text-center align-middle">
+                                    <span class="badge bg-success">{{ item.stats.available }}</span>
+                                </td>
+                                <td class="text-center align-middle">
+                                    <span class="badge bg-warning text-dark">{{ item.stats.issued }}</span>
+                                </td>
+                                <td class="text-center align-middle">
+                                    <span class="badge bg-info">{{ item.stats.popularity }}</span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <th><strong>Итого</strong></th>
+                            <th class="text-center">{{ branches_stats|sum(attribute='stats.total') }}</th>
+                            <th class="text-center">{{ branches_stats|sum(attribute='stats.available') }}</th>
+                            <th class="text-center">{{ branches_stats|sum(attribute='stats.issued') }}</th>
+                            <th class="text-center">{{ branches_stats|sum(attribute='stats.popularity') }}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info text-center">
+                <h4>Нет филиалов</h4>
+                <p>Добавьте филиалы через кнопку "Добавить тестовые филиалы"</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
